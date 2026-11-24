@@ -1,0 +1,7 @@
+﻿<Solution>
+  <Project Path="Navigay.EditModeTests.csproj" />
+  <Project Path="Navigay.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Navigay.PlayModeTests.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+</Solution>

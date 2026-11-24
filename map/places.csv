@@ -1,0 +1,16 @@
+place_id,name,type,access,door_ids,start
+place_001,B1,block,boys,door_002,no
+place_002,B2,block,boys,door_003,no
+place_003,B3,block,boys,door_004,no
+place_004,B5,block,boys,door_005,no
+place_005,B6,block,boys,door_006,no
+place_006,B7,block,boys,door_007,no
+place_007,B8,block,boys,door_008,no
+place_008,B9,block,boys,door_009,no
+place_009,B10,block,boys,door_010,no
+place_010,G2,block,girls,door_011,no
+place_011,G3,block,girls,door_012,no
+place_012,G4,block,girls,door_013,no
+place_013,Quess Mess,food,all,door_014,no
+place_014,BlueDove Mess,food,all,door_015,no
+place_015,Underpass entrance,gate,all,door_001,yes

@@ -1,0 +1,140 @@
+id,kind,note
+lane_001,lane,was lane_osm_1141643441
+lane_002,lane,was lane_osm_1141643442
+lane_003,lane,was lane_osm_1141643443
+lane_004,lane,was lane_osm_1154143679
+lane_005,lane,was lane_osm_1154143680
+lane_006,lane,was lane_osm_1154145948
+lane_007,lane,was lane_osm_1154145949
+lane_008,lane,was lane_osm_1154145950
+lane_009,lane,was lane_osm_1154145951
+lane_010,lane,was lane_osm_1158552747
+lane_011,lane,was lane_osm_1158552748
+lane_012,lane,was lane_osm_1159177706
+lane_013,lane,was lane_osm_1159216082
+lane_014,lane,was lane_osm_1159542817
+lane_015,lane,was lane_osm_1159542818
+lane_016,lane,was lane_osm_1159998051
+lane_017,lane,was lane_osm_1159998052
+lane_018,lane,was lane_osm_1159998053
+lane_019,lane,was lane_osm_1159998433
+lane_020,lane,was lane_osm_1162173987
+lane_021,lane,was lane_osm_1162174580
+lane_022,lane,was lane_osm_1164502067
+lane_023,lane,was lane_osm_1198234117
+lane_024,lane,was lane_osm_1245026714
+lane_025,lane,was lane_osm_1245274146
+lane_026,lane,was lane_osm_1365893470
+lane_027,lane,was lane_osm_1568303892
+lane_028,lane,was lane_osm_1568303894
+lane_029,lane,was lane_osm_1568303895
+lane_030,lane,was lane_osm_1568303896
+lane_031,lane,was lane_osm_1568303900
+lane_032,lane,was lane_osm_1568303901
+lane_033,lane,was lane_new_001
+lane_034,lane,was lane_new_002
+junc_001,junction,was j_001
+junc_002,junction,was j_002
+junc_003,junction,was j_003
+junc_004,junction,was j_004
+junc_005,junction,was j_005
+junc_006,junction,was j_006
+junc_007,junction,was j_007
+junc_008,junction,was j_008
+junc_009,junction,was j_009
+junc_010,junction,was j_010
+junc_011,junction,was j_011
+junc_012,junction,was j_012
+junc_013,junction,was j_013
+junc_014,junction,was j_014
+junc_015,junction,was j_015
+junc_016,junction,was j_016
+junc_017,junction,was j_017
+junc_018,junction,was j_018
+junc_019,junction,was j_019
+junc_020,junction,was j_020
+junc_021,junction,was j_021
+junc_022,junction,was j_022
+junc_023,junction,was j_023
+junc_024,junction,was j_024
+junc_025,junction,was j_025
+junc_026,junction,was j_026
+junc_027,junction,was j_027
+junc_028,junction,was j_028
+junc_029,junction,was j_029
+junc_030,junction,was j_030
+junc_031,junction,was j_031
+junc_032,junction,was j_032
+junc_033,junction,was j_033
+junc_034,junction,was j_034
+junc_035,junction,was j_035
+junc_036,junction,was j_036
+junc_037,junction,was j_037
+junc_038,junction,was j_038
+junc_039,junction,was j_039
+junc_040,junction,was j_040
+junc_041,junction,was j_041
+junc_042,junction,was j_042
+junc_043,junction,was j_043
+junc_044,junction,was j_044
+junc_045,junction,was j_045
+junc_046,junction,was j_046
+junc_047,junction,was j_047
+junc_048,junction,was j_048
+junc_049,junction,was j_049
+junc_050,junction,was j_050
+junc_051,junction,was j_051
+junc_052,junction,was j_052
+junc_053,junction,was j_053
+door_001,door,was door_underpass_ghs
+door_002,door,"draft door, not surveyed"
+door_003,door,"draft door, not surveyed"
+door_004,door,"draft door, not surveyed"
+door_005,door,"draft door, not surveyed"
+door_006,door,"draft door, not surveyed"
+door_007,door,"draft door, not surveyed"
+door_008,door,"draft door, not surveyed"
+door_009,door,"draft door, not surveyed"
+door_010,door,"draft door, not surveyed"
+door_011,door,"draft door, not surveyed"
+door_012,door,"draft door, not surveyed"
+door_013,door,"draft door, not surveyed"
+door_014,door,"draft door, not surveyed"
+door_015,door,"draft door, not surveyed"
+block_001,block,was block_osm_1151360714
+block_002,block,was block_osm_1151360713
+block_003,block,was block_osm_1151360712
+block_004,block,was block_osm_1158516082
+block_005,block,was block_osm_1158515143
+block_006,block,was block_osm_1141643440
+block_007,block,was block_osm_1568303891
+block_008,block,was block_osm_1568303897
+block_009,block,was block_osm_1568303899
+block_010,block,was block_osm_1158514979
+block_011,block,was block_osm_1158514978
+block_012,block,was block_osm_1158512990
+block_013,block,was block_osm_1141643445
+block_014,block,was block_osm_1356153775
+block_015,block,was block_new_001
+block_016,block,was block_new_002
+block_017,block,was block_new_003
+block_018,block,was block_osm_1158516081
+block_019,block,was block_osm_1158936647
+block_020,block,was block_osm_1159753599
+block_021,block,was block_osm_1164291981
+block_022,block,was block_osm_1164410983
+place_001,place,B1
+place_002,place,B2
+place_003,place,B3
+place_004,place,B5
+place_005,place,B6
+place_006,place,B7
+place_007,place,B8
+place_008,place,B9
+place_009,place,B10
+place_010,place,G2
+place_011,place,G3
+place_012,place,G4
+place_013,place,Quess Mess
+place_014,place,BlueDove Mess
+place_015,place,Underpass entrance

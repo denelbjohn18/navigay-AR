@@ -1,0 +1,4 @@
+<linker>
+  <assembly fullname="Navigay" preserve="all" />
+  <assembly fullname="Newtonsoft.Json" preserve="all" />
+</linker>
