@@ -12,7 +12,7 @@ namespace Navigay.AR
         Transform[] _dots = System.Array.Empty<Transform>();
         Material _material;
 
-        public void Draw(GuidanceState state, Vector3 cameraPosition, Quaternion cameraRotation, NavConfig config)
+        public void Draw(GuidanceState state, Matrix4x4 mapToAr, NavConfig config)
         {
             if (state.Level == ConfidenceLevel.Hold || state.Arrived || state.Route?.Polyline == null)
             {
@@ -21,10 +21,8 @@ namespace Navigay.AR
             }
 
             var span = state.Level == ConfidenceLevel.Full ? config.full_dots_m : config.short_dots_m;
-            var points = Sample(state.Route, state.AlongM, span, config);
+            var points = Sample(state.Route, state.Checkpoint, state.AlongM, span, config);
             Ensure(points.Length);
-            var groundY = cameraPosition.y - 1.5f;
-            var yaw = Quaternion.Euler(0f, cameraRotation.eulerAngles.y, 0f);
             for (var i = 0; i < _dots.Length; i++)
             {
                 if (i >= points.Length)
@@ -37,7 +35,8 @@ namespace Navigay.AR
                 var size = Mathf.Lerp(0.4f, 0.12f, t);
                 var fade = Mathf.Lerp(1f, 0.25f, t);
                 _dots[i].gameObject.SetActive(true);
-                _dots[i].position = yaw * new Vector3((float)points[i][0], 0f, (float)points[i][1]) + new Vector3(cameraPosition.x, groundY, cameraPosition.z);
+                var mapPoint = new Vector3((float)points[i][0], -config.dot_ground_offset_m, (float)points[i][1]);
+                _dots[i].position = mapToAr.MultiplyPoint3x4(mapPoint);
                 _dots[i].localScale = Vector3.one * size;
                 var renderer = _dots[i].GetComponent<MeshRenderer>();
                 renderer.material.color = new Color(Blue.r, Blue.g, Blue.b, fade);
@@ -88,26 +87,14 @@ namespace Navigay.AR
             _dots = next;
         }
 
-        static double[][] Sample(Route route, double along, float span, NavConfig config)
+        static double[][] Sample(Route route, Checkpoint checkpoint, double along, float span, NavConfig config)
         {
             var line = route.Polyline;
             var points = new System.Collections.Generic.List<double[]>();
-            var cursor = along + config.dot_spacing_m;
+            // Keep the spacing tied to the route so dots do not slide as AlongM changes.
+            var spacing = config.dot_spacing_m;
+            var cursor = (System.Math.Floor(along / spacing) + 1d) * spacing;
             var end = along + span;
-            var checkpoint = route.Checkpoints != null && route.Checkpoints.Length > 0
-                ? route.Checkpoints[System.Math.Min(route.Checkpoints.Length - 1, 0)]
-                : null;
-            if (route.Checkpoints != null)
-            {
-                foreach (var item in route.Checkpoints)
-                {
-                    if (item != null && item.AlongM >= along)
-                    {
-                        checkpoint = item;
-                        break;
-                    }
-                }
-            }
 
             if (checkpoint != null)
             {
@@ -134,7 +121,7 @@ namespace Navigay.AR
                 {
                     var t = (cursor - travelled) / length;
                     points.Add(new[] { ax + (dx * t), ay + (dy * t) });
-                    cursor += config.dot_spacing_m;
+                    cursor += spacing;
                 }
 
                 travelled = next;

@@ -72,7 +72,30 @@ namespace Navigay.Tests.EditMode
             far.Open(Path(), _config);
             far.Update(null, "place", Snap(0, 10), FineAt(0, 10), false, true, ConfidenceLevel.Full, _config, 0, Recalc);
             far.Update(null, "place", SnapFix.None, FineAt(40, 10), false, true, ConfidenceLevel.Full, _config, 1, Recalc);
+            Assert.AreEqual(0, far.Calculations);
+            far.Update(null, "place", Snap(40, 10), FineAt(40, 10), false, true, ConfidenceLevel.Full, _config, 2, Recalc);
             Assert.AreEqual(1, far.Calculations);
+            far.Update(null, "place", Snap(40, 10), FineAt(40, 10), false, true, ConfidenceLevel.Full, _config, 3, Recalc);
+            Assert.AreEqual(1, far.Calculations);
+        }
+
+        [Test]
+        public void AFailedRerouteWaitsUntilTheUserMovesAgain()
+        {
+            var guide = new Guide();
+            guide.Open(Path(), _config);
+            RouteResult Missing(GraphData graph, string placeId, SnapFix snap)
+            {
+                return RouteResult.NoPath();
+            }
+
+            guide.Update(null, "place", Snap(0, 10), FineAt(0, 10), false, true, ConfidenceLevel.Full, _config, 0, Missing);
+            guide.Update(null, "place", Snap(40, 10), FineAt(40, 10), false, true, ConfidenceLevel.Full, _config, 1, Missing);
+            Assert.AreEqual(1, guide.Calculations);
+            guide.Update(null, "place", Snap(40, 10), FineAt(40, 10), false, true, ConfidenceLevel.Full, _config, 2, Missing);
+            Assert.AreEqual(1, guide.Calculations);
+            guide.Update(null, "place", Snap(40, 30), FineAt(40, 30), false, true, ConfidenceLevel.Full, _config, 3, Missing);
+            Assert.AreEqual(2, guide.Calculations);
         }
 
         [Test]
@@ -80,9 +103,51 @@ namespace Navigay.Tests.EditMode
         {
             var route = Path();
             var minutes = Pace.Minutes(route.LengthM, _config.walk_speed_mps);
-            Assert.AreEqual("About " + minutes + " min", "About " + minutes + " min");
+            var guide = new Guide();
+            guide.Open(route, _config);
+            var opening = Sample(guide, Snap(0, 0), 0);
+            Assert.AreEqual(minutes, opening.MinutesLeft);
             Assert.AreEqual(3, minutes);
             Assert.AreEqual(PlaceCard.TimeUntilStuck, "Step outside to see the time.");
+        }
+
+        [Test]
+        public void ArrivalMinutesAreTheTimeTaken()
+        {
+            var guide = new Guide();
+            guide.Open(Path(), _config);
+            Sample(guide, Snap(0, 0), 0);
+            var arrived = Sample(guide, Snap(0, 193), 120);
+            Assert.IsTrue(arrived.Arrived);
+            Assert.AreEqual(2, guide.ElapsedMinutes(120));
+        }
+
+        [Test]
+        public void EdgeArrowShowsWhenTheCheckpointIsOutsideTheView()
+        {
+            var route = new Route
+            {
+                Polyline = new[] { new[] { 0d, 0d }, new[] { 100d, 0d } },
+                Checkpoints = new[]
+                {
+                    new Checkpoint { Name = "east", X = 100d, Y = 0d, AlongM = 100d },
+                },
+            };
+            var state = new GuidanceState(
+                route,
+                0,
+                0d,
+                100d,
+                100,
+                3,
+                TurnKind.Right,
+                "east",
+                null,
+                false,
+                false,
+                ConfidenceLevel.Full);
+            Assert.IsTrue(GuideScreen.CheckpointOffScreen(0f, state));
+            Assert.IsFalse(GuideScreen.CheckpointOffScreen(90f, state));
         }
 
         [Test]

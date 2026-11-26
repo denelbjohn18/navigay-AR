@@ -20,10 +20,13 @@ namespace Navigay.UI
 
         static TMP_FontAsset _font;
         static Sprite _chevron;
+        static Sprite _magnifier;
 
         public static TMP_FontAsset Font => _font ??= LoadFont();
 
         public static Sprite ChevronSprite => _chevron ??= Chevron();
+
+        public static Sprite MagnifierSprite => _magnifier ??= Magnifier();
 
         public static Canvas BuildCanvas()
         {
@@ -35,6 +38,7 @@ namespace Navigay.UI
                 typeof(GraphicRaycaster));
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
             canvas.sortingOrder = 10;
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -186,6 +190,34 @@ namespace Navigay.UI
                     var lower = DistanceToSegment(x, y, 23f, 16f, 9f, 25f);
                     var alpha = Mathf.Clamp01(2.4f - Mathf.Min(upper, lower));
                     pixels[(y * size) + x] = new Color(1f, 1f, 1f, alpha);
+                }
+            }
+
+            texture.SetPixels(pixels);
+            texture.Apply();
+            var sprite = Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 1f);
+            sprite.hideFlags = HideFlags.HideAndDontSave;
+            return sprite;
+        }
+
+        static Sprite Magnifier()
+        {
+            const int size = 32;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+            };
+            var pixels = new Color[size * size];
+            for (var y = 0; y < size; y++)
+            {
+                for (var x = 0; x < size; x++)
+                {
+                    var lens = Mathf.Abs(new Vector2(x - 13f, y - 19f).magnitude - 8f);
+                    var handle = DistanceToSegment(x, y, 19f, 13f, 26f, 6f);
+                    var alpha = Mathf.Clamp01(2f - Mathf.Min(lens, handle));
+                    pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
                 }
             }
 

@@ -211,10 +211,59 @@ namespace Navigay.Tests.EditMode
             });
             where.PushCompass(90f, 5f);
             where.PushGps(0, 0, 5, 1);
-            where.PushAr(Vector3.zero, Quaternion.identity, TrackingState.Tracking, 1);
-            where.PushAr(new Vector3(0f, 0f, 8f), Quaternion.identity, TrackingState.Tracking, 2);
+            where.PushAr(Vector3.zero, Quaternion.identity, TrackingState.Tracking, 1, _config.short_heading_deg);
+            where.PushAr(new Vector3(0f, 0f, 8f), Quaternion.identity, TrackingState.Tracking, 2, _config.short_heading_deg);
             Assert.AreEqual(8f, where.Current.MapPosition.x, 0.2f);
             Assert.AreEqual(0f, where.Current.MapPosition.y, 0.2f);
+        }
+
+        [Test]
+        public void GridPointStaysFixedAsCameraTurnsAndMoves()
+        {
+            var where = new WhereAmI();
+            where.Bind(RouteGraph());
+            var start = new Vector3(12f, 2f, 20f);
+            where.PushGps(30, 120, 5f, 1);
+            where.PushCompass(90f, 5f);
+            where.PushAr(start, Quaternion.identity, TrackingState.Tracking, 1, _config.short_heading_deg);
+            Assert.IsTrue(where.TryGetMapToAr(out var transform));
+            var mapPosition = where.Current.MapPosition;
+            var mapPoint = new Vector3(mapPosition.x + 8f, -_config.dot_ground_offset_m, mapPosition.y);
+            var expected = start + new Vector3(0f, -_config.dot_ground_offset_m, 8f);
+            Assert.Less(Vector3.Distance(expected, transform.MultiplyPoint3x4(mapPoint)), 0.001f);
+
+            // A later compass reading can lag a turn without rotating the anchored dots.
+            where.PushCompass(130f, 5f);
+            var turned = Quaternion.Euler(0f, 45f, 0f);
+            where.PushAr(start, turned, TrackingState.Tracking, 2, _config.short_heading_deg);
+            Assert.IsTrue(where.TryGetMapToAr(out transform));
+            Assert.Less(Vector3.Distance(expected, transform.MultiplyPoint3x4(mapPoint)), 0.001f);
+
+            where.PushAr(start + new Vector3(0f, 0.2f, 3f), turned, TrackingState.Tracking, 3, _config.short_heading_deg);
+            Assert.IsTrue(where.TryGetMapToAr(out transform));
+            Assert.Less(Vector3.Distance(expected, transform.MultiplyPoint3x4(mapPoint)), 0.001f);
+        }
+
+        [Test]
+        public void TrackingLossInvalidatesAlignmentWithoutApplyingPoseJump()
+        {
+            var where = new WhereAmI();
+            where.Bind(RouteGraph());
+            where.PushGps(30, 120, 5f, 1);
+            where.PushCompass(90f, -1f);
+            where.PushAr(Vector3.zero, Quaternion.identity, TrackingState.Tracking, 1, _config.short_heading_deg);
+            Assert.IsFalse(where.TryGetMapToAr(out _));
+
+            where.PushCompass(90f, 5f);
+            where.PushAr(Vector3.zero, Quaternion.identity, TrackingState.Tracking, 2, _config.short_heading_deg);
+            var before = where.Current.MapPosition;
+            Assert.IsTrue(where.TryGetMapToAr(out _));
+
+            where.PushAr(Vector3.zero, Quaternion.identity, TrackingState.Limited, 3, _config.short_heading_deg);
+            Assert.IsFalse(where.TryGetMapToAr(out _));
+            where.PushAr(new Vector3(50f, 1f, 50f), Quaternion.identity, TrackingState.Tracking, 4, _config.short_heading_deg);
+            Assert.IsTrue(where.TryGetMapToAr(out _));
+            Assert.AreEqual(before, where.Current.MapPosition);
         }
 
         [Test]

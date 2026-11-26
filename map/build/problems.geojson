@@ -4,6 +4,34 @@
     {
       "type": "Feature",
       "properties": {
+        "problem": "crosses_block",
+        "message": "lane_036: lane cuts through block_001",
+        "ids": [
+          "lane_036",
+          "block_001"
+        ]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            75.5626653,
+            26.8415216
+          ],
+          [
+            75.5627299,
+            26.8415441
+          ],
+          [
+            75.5628344,
+            26.8415805
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "problem": "unnamed_block",
         "message": "block_015: block has no place_id",
         "ids": [

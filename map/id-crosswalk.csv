@@ -33,6 +33,9 @@ lane_osm_1568303900,lane_031,lane
 lane_osm_1568303901,lane_032,lane
 lane_new_001,lane_033,lane
 lane_new_002,lane_034,lane
+lane_new_005,lane_035,lane
+lane_new_004,lane_036,lane
+lane_new_008,lane_037,lane
 j_001,junc_001,junction
 j_002,junc_002,junction
 j_003,junc_003,junction
@@ -86,6 +89,8 @@ j_050,junc_050,junction
 j_051,junc_051,junction
 j_052,junc_052,junction
 j_053,junc_053,junction
+j_054,junc_054,junction
+j_055,junc_055,junction
 door_underpass_ghs,door_001,door
 ,door_002,door
 ,door_003,door
@@ -101,6 +106,8 @@ door_underpass_ghs,door_001,door
 ,door_013,door
 ,door_014,door
 ,door_015,door
+poi_bluespring_counter,door_016,door
+poi_b1_badminton_court,door_017,door
 block_osm_1151360714,block_001,block
 block_osm_1151360713,block_002,block
 block_osm_1151360712,block_003,block

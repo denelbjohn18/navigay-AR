@@ -29,7 +29,7 @@ namespace Navigay.Tests.EditMode
             }
 
             var sections = PlaceList.Build(graph.Places, string.Empty, null, null, null);
-            Assert.AreEqual(new[] { "Blocks", "Food", "Gates" }, Headings(sections));
+            Assert.AreEqual(new[] { "Blocks", "Food", "Gates", "Sports" }, Headings(sections));
             var blocks = sections[0].Places;
             var b2 = IndexOf(blocks, "B2");
             var b10 = IndexOf(blocks, "B10");
@@ -47,7 +47,8 @@ namespace Navigay.Tests.EditMode
             var numbered = PlaceList.Build(graph.Places, "b1", null, null, null);
             Assert.IsNull(numbered[0].Heading);
             Assert.AreEqual("B1", numbered[0].Places[0].Name);
-            Assert.AreEqual("B10", numbered[0].Places[1].Name);
+            Assert.AreEqual("B1 badminton court", numbered[0].Places[1].Name);
+            Assert.AreEqual("B10", numbered[0].Places[2].Name);
 
             var access = PlaceList.Build(graph.Places, "boys", null, null, null);
             Assert.AreEqual(0, access[0].Places.Length);

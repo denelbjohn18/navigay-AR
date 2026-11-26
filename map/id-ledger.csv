@@ -33,6 +33,9 @@ lane_031,lane,was lane_osm_1568303900
 lane_032,lane,was lane_osm_1568303901
 lane_033,lane,was lane_new_001
 lane_034,lane,was lane_new_002
+lane_035,lane,was lane_new_005
+lane_036,lane,was lane_new_004
+lane_037,lane,was lane_new_008
 junc_001,junction,was j_001
 junc_002,junction,was j_002
 junc_003,junction,was j_003
@@ -86,6 +89,8 @@ junc_050,junction,was j_050
 junc_051,junction,was j_051
 junc_052,junction,was j_052
 junc_053,junction,was j_053
+junc_054,junction,T-join lane_035 to lane_012
+junc_055,junction,T-join lane_037 to lane_019
 door_001,door,was door_underpass_ghs
 door_002,door,"draft door, not surveyed"
 door_003,door,"draft door, not surveyed"
@@ -101,6 +106,8 @@ door_012,door,"draft door, not surveyed"
 door_013,door,"draft door, not surveyed"
 door_014,door,"draft door, not surveyed"
 door_015,door,"draft door, not surveyed"
+door_016,door,"draft door, not surveyed"
+door_017,door,"draft door, not surveyed"
 block_001,block,was block_osm_1151360714
 block_002,block,was block_osm_1151360713
 block_003,block,was block_osm_1151360712
@@ -138,3 +145,5 @@ place_012,place,G4
 place_013,place,Quess Mess
 place_014,place,BlueDove Mess
 place_015,place,Underpass entrance
+place_016,place,Bluespring counter
+place_017,place,B1 badminton court

@@ -13,6 +13,7 @@ namespace Navigay.Position
     {
         WhereAmI _where;
         ARCameraManager _manager;
+        ARCameraBackground _background;
         GameObject _root;
         Camera _camera;
         Camera _hidden;
@@ -20,6 +21,7 @@ namespace Navigay.Position
         bool _haveBrightness;
         bool _started;
         bool _watchingDenial;
+        double _lastGpsTimestamp;
 
         public bool Started => _started;
 
@@ -57,6 +59,8 @@ namespace Navigay.Position
         {
             _started = true;
             CameraDenied = false;
+            _haveBrightness = false;
+            _lastGpsTimestamp = double.NaN;
             Input.compass.enabled = true;
             EnsureAr();
             _root.SetActive(true);
@@ -90,9 +94,11 @@ namespace Navigay.Position
 
             ReadGps(time);
             ReadCompass();
-            ReadAr(time);
+            ReadAr(time, config.short_heading_deg);
             WatchCameraDenial();
-            CameraFine = Tracking == TrackingState.Tracking && !Lowered(config) && !Dark(config);
+            CameraFine = Tracking == TrackingState.Tracking
+                && _background != null && _background.backgroundRenderingEnabled
+                && !Lowered(config) && !Dark(config);
         }
 
         void ReadGps(double time)
@@ -114,6 +120,13 @@ namespace Navigay.Position
             Latitude = data.latitude;
             Longitude = data.longitude;
             GpsAccuracyM = data.horizontalAccuracy;
+            // Unity returns the last sample every frame. Applying it repeatedly erases AR motion.
+            if (data.timestamp == _lastGpsTimestamp)
+            {
+                return;
+            }
+
+            _lastGpsTimestamp = data.timestamp;
             _where.PushGps(data.latitude, data.longitude, data.horizontalAccuracy, time);
         }
 
@@ -129,15 +142,16 @@ namespace Navigay.Position
             _where.PushCompass(Input.compass.trueHeading, Input.compass.headingAccuracy);
         }
 
-        void ReadAr(double time)
+        void ReadAr(double time, float headingAccuracyLimit)
         {
             var position = Vector3.zero;
             var rotation = Quaternion.identity;
             var hmd = InputSystem.GetDevice<XRHMD>();
-            if (hmd != null)
+            if (_camera != null && hmd != null)
             {
-                position = hmd.devicePosition.ReadValue();
-                rotation = hmd.deviceRotation.ReadValue();
+                var parent = _camera.transform.parent;
+                position = parent.TransformPoint(hmd.devicePosition.ReadValue());
+                rotation = parent.rotation * hmd.deviceRotation.ReadValue();
             }
             else if (_camera != null)
             {
@@ -148,7 +162,7 @@ namespace Navigay.Position
             ArPosition = position;
             ArRotation = rotation;
             Tracking = Map(ARSession.state);
-            _where.PushAr(position, rotation, Tracking, time);
+            _where.PushAr(position, rotation, Tracking, time, headingAccuracyLimit);
         }
 
         bool Lowered(NavConfig config)
@@ -191,7 +205,7 @@ namespace Navigay.Position
             _camera.farClipPlane = 40f;
             _manager = cameraObject.AddComponent<ARCameraManager>();
             _manager.requestedLightEstimation = LightEstimation.AmbientIntensity;
-            cameraObject.AddComponent<ARCameraBackground>();
+            _background = cameraObject.AddComponent<ARCameraBackground>();
             origin.Camera = _camera;
             var driver = cameraObject.AddComponent<TrackedPoseDriver>();
             driver.trackingType = TrackedPoseDriver.TrackingType.RotationAndPosition;

@@ -34,6 +34,7 @@ namespace Navigay.Config
         public float turn_reset_s = 3f;
         public float turn_reset_m = 15f;
         public float dot_spacing_m = 1.5f;
+        public float dot_ground_offset_m = 1.5f;
         public float full_dots_m = 40f;
         public float short_dots_m = 10f;
         public int max_dots = 30;

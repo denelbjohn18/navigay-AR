@@ -1425,6 +1425,90 @@
     {
       "type": "Feature",
       "properties": {
+        "id": "lane_035",
+        "feature": "lane",
+        "access": "all",
+        "old_id": "lane_new_005",
+        "stroke": "#00c9ff",
+        "stroke-width": 3
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            75.56134208,
+            26.84089617
+          ],
+          [
+            75.56162804,
+            26.84098907
+          ],
+          [
+            75.56190578,
+            26.8410793
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lane_036",
+        "feature": "lane",
+        "access": "all",
+        "old_id": "lane_new_004",
+        "stroke": "#00c9ff",
+        "stroke-width": 3
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            75.56266528,
+            26.84152161
+          ],
+          [
+            75.5628344,
+            26.8415805
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lane_037",
+        "feature": "lane",
+        "access": "all",
+        "old_id": "lane_new_008",
+        "stroke": "#00c9ff",
+        "stroke-width": 3
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            75.56193862,
+            26.84100073
+          ],
+          [
+            75.56237186,
+            26.84114862
+          ],
+          [
+            75.56276768,
+            26.84128373
+          ],
+          [
+            75.56342495,
+            26.8415081
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "id": "junc_001",
         "feature": "junction",
         "old_id": "j_001"
@@ -2263,6 +2347,36 @@
     {
       "type": "Feature",
       "properties": {
+        "id": "junc_054",
+        "feature": "junction",
+        "old_id": "j_054"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.56190578150607,
+          26.841079300507975
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "junc_055",
+        "feature": "junction",
+        "old_id": "j_055"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.56342495122684,
+          26.84150810053924
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "id": "door_001",
         "feature": "door",
         "name": "Underpass entrance",
@@ -2512,6 +2626,42 @@
         "coordinates": [
           75.5615815,
           26.8405708
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "door_016",
+        "feature": "door",
+        "name": "Bluespring counter",
+        "needs_survey": true,
+        "draft": true,
+        "old_id": "poi_bluespring_counter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.56157637,
+          26.84097228
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "door_017",
+        "feature": "door",
+        "name": "B1 badminton court",
+        "needs_survey": true,
+        "draft": true,
+        "old_id": "poi_b1_badminton_court"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.56272988,
+          26.84154411
         ]
       }
     },

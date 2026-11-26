@@ -15,7 +15,8 @@ namespace Navigay.Position
         float _gpsError = UnfixedErrorM;
         Vector3 _lastAr;
         bool _haveAr;
-        float _yaw;
+        Quaternion _arToMap;
+        float _arReferenceY;
         bool _haveYaw;
         float _heading;
         float _headingError = 180f;
@@ -30,6 +31,27 @@ namespace Navigay.Position
         {
             _frame = MapFrame.From(graph);
             _haveFrame = true;
+            _haveGps = false;
+            _haveMap = false;
+            _haveAr = false;
+            _haveYaw = false;
+            _headingError = 180f;
+            Publish(0d, TrackingState.None);
+        }
+
+        public bool TryGetMapToAr(out Matrix4x4 transform)
+        {
+            if (!_haveMap || !_haveYaw || !_haveAr)
+            {
+                transform = default;
+                return false;
+            }
+
+            var mapToAr = Quaternion.Inverse(_arToMap);
+            var cameraAnchor = new Vector3(_lastAr.x, _arReferenceY, _lastAr.z);
+            var mapPosition = new Vector3(_map.x, 0f, _map.y);
+            transform = Matrix4x4.TRS(cameraAnchor - mapToAr * mapPosition, mapToAr, Vector3.one);
+            return true;
         }
 
         public void PushGps(double latitude, double longitude, float accuracyM, double time)
@@ -60,29 +82,43 @@ namespace Navigay.Position
         public void PushCompass(float trueHeading, float headingAccuracyDeg)
         {
             _heading = trueHeading;
-            _headingError = headingAccuracyDeg;
-            _haveYaw = false;
+            _headingError = headingAccuracyDeg >= 0f ? headingAccuracyDeg : 180f;
         }
 
-        public void PushAr(Vector3 worldPosition, Quaternion rotation, TrackingState tracking, double time)
+        public void PushAr(
+            Vector3 worldPosition,
+            Quaternion rotation,
+            TrackingState tracking,
+            double time,
+            float headingAccuracyLimit)
         {
-            var forward = rotation * Vector3.forward;
-            var flat = new Vector2(forward.x, forward.z);
-            if (flat.sqrMagnitude > 1e-6f && _headingError < 180f)
+            if (tracking != TrackingState.Tracking)
             {
-                var arHeading = Mathf.Atan2(flat.x, flat.y) * Mathf.Rad2Deg;
-                _yaw = _heading - arHeading;
-                _haveYaw = true;
+                _haveAr = false;
+                _haveYaw = false;
+                Publish(time, tracking);
+                return;
             }
 
-            if (_haveAr && _haveMap && _haveYaw)
+            if (!_haveYaw && _haveMap && _headingError <= headingAccuracyLimit)
             {
-                var delta = worldPosition - _lastAr;
-                var rad = _yaw * Mathf.Deg2Rad;
-                var cos = Mathf.Cos(rad);
-                var sin = Mathf.Sin(rad);
-                _map.x += (delta.x * cos) + (delta.z * sin);
-                _map.y += (-delta.x * sin) + (delta.z * cos);
+                var forward = rotation * Vector3.forward;
+                var flat = new Vector2(forward.x, forward.z);
+                if (flat.sqrMagnitude > 1e-6f)
+                {
+                    var arHeading = Mathf.Atan2(flat.x, flat.y) * Mathf.Rad2Deg;
+                    // Keep north fixed in the AR session while the camera turns.
+                    _arToMap = Quaternion.Euler(0f, _heading - arHeading, 0f);
+                    _arReferenceY = worldPosition.y;
+                    _haveYaw = true;
+                    _haveAr = false;
+                }
+            }
+
+            if (_haveAr && _haveYaw)
+            {
+                var mapDelta = _arToMap * (worldPosition - _lastAr);
+                _map += new Vector2(mapDelta.x, mapDelta.z);
             }
 
             _lastAr = worldPosition;

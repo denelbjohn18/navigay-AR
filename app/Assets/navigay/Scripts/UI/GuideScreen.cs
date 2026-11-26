@@ -18,7 +18,8 @@ namespace Navigay.UI
         TextMeshProUGUI _inside;
         GameObject _sign;
         TextMeshProUGUI _signLabel;
-        GameObject _arrivalSlot;
+
+        const float OffScreenDeg = 50f;
 
         public event Action Ended;
 
@@ -32,7 +33,7 @@ namespace Navigay.UI
             gameObject.SetActive(false);
         }
 
-        public void Draw(GuidanceState state, float headingDeg, Vector3 cameraForward)
+        public void Draw(GuidanceState state, float headingDeg)
         {
             if (!gameObject.activeSelf)
             {
@@ -41,7 +42,7 @@ namespace Navigay.UI
 
             var hold = state.Level == ConfidenceLevel.Hold || state.Arrived;
             _arrow.gameObject.SetActive(hold && !state.Arrived);
-            _edge.gameObject.SetActive(!hold && OffScreen(cameraForward, state));
+            _edge.gameObject.SetActive(!hold && CheckpointOffScreen(headingDeg, state));
             if (_arrow.gameObject.activeSelf)
             {
                 Aim(_arrow, headingDeg, state);
@@ -53,7 +54,7 @@ namespace Navigay.UI
             }
 
             _turn.text = Line(state);
-            _metres.text = Mathf.Max(0, (int)Mathf.Round((float)state.RemainingM)).ToString();
+            _metres.text = state.ShownCountdownM.ToString();
             _minutes.text = state.MinutesLeft.ToString();
             _clock.text = Clock(state.MinutesLeft);
             _inside.gameObject.SetActive(state.Inside);
@@ -113,23 +114,15 @@ namespace Navigay.UI
 
         static void Aim(RectTransform arrow, float headingDeg, GuidanceState state)
         {
-            var point = state.Checkpoint;
-            if (point == null || state.Route?.Polyline == null)
+            if (!TryBearing(state, out var bearing))
             {
                 return;
             }
 
-            var from = state.Route.Polyline[0];
-            if (state.AlongM >= 0d && LaneMathSafe(state, out var x, out var y))
-            {
-                from = new[] { x, y };
-            }
-
-            var bearing = Mathf.Atan2((float)(point.X - from[0]), (float)(point.Y - from[1])) * Mathf.Rad2Deg;
             arrow.localRotation = Quaternion.Euler(0f, 0f, -Mathf.DeltaAngle(headingDeg, bearing));
         }
 
-        static bool LaneMathSafe(GuidanceState state, out double x, out double y)
+        static bool PointAlong(GuidanceState state, out double x, out double y)
         {
             x = 0d;
             y = 0d;
@@ -165,20 +158,35 @@ namespace Navigay.UI
             return true;
         }
 
-        static bool OffScreen(Vector3 cameraForward, GuidanceState state)
+        public static bool CheckpointOffScreen(float headingDeg, GuidanceState state)
         {
-            if (state.Checkpoint == null)
+            if (!TryBearing(state, out var bearing))
             {
                 return false;
             }
 
-            var flat = new Vector2(cameraForward.x, cameraForward.z);
-            if (flat.sqrMagnitude < 1e-6f)
+            return Mathf.Abs(Mathf.DeltaAngle(headingDeg, bearing)) > OffScreenDeg;
+        }
+
+        static bool TryBearing(GuidanceState state, out float bearing)
+        {
+            bearing = 0f;
+            var point = state.Checkpoint;
+            if (point == null || state.Route?.Polyline == null)
             {
                 return false;
             }
 
-            return Vector2.Dot(flat.normalized, Vector2.up) < 0.15f;
+            var fromX = state.Route.Polyline[0][0];
+            var fromY = state.Route.Polyline[0][1];
+            if (state.AlongM >= 0d && PointAlong(state, out var x, out var y))
+            {
+                fromX = x;
+                fromY = y;
+            }
+
+            bearing = Mathf.Atan2((float)(point.X - fromX), (float)(point.Y - fromY)) * Mathf.Rad2Deg;
+            return true;
         }
 
         void Awake()
@@ -252,9 +260,6 @@ namespace Navigay.UI
             var endLabel = UiKit.Text(end.transform, "End", 15f, FontStyles.Bold, Color.white, TextAlignmentOptions.Center);
             endLabel.fontWeight = FontWeight.SemiBold;
             UiKit.Stretch(endLabel.rectTransform);
-
-            _arrivalSlot = new GameObject("arrival-slot", typeof(RectTransform));
-            _arrivalSlot.transform.SetParent(transform, false);
             gameObject.SetActive(false);
         }
 

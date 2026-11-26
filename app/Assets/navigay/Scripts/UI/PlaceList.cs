@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Navigay.Data;
 
 namespace Navigay.UI
@@ -8,26 +9,40 @@ namespace Navigay.UI
     {
         public const string NearYouHeading = "Near you.";
 
+        static readonly Regex MessWord = new Regex(@"\bmess\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        internal static readonly (string Label, Predicate<PlaceRecord> Includes)[] Categories =
+        {
+            ("Blocks", place => place.Kind == PlaceKind.Block),
+            ("Restaurants", place => place.Kind == PlaceKind.Food && !MessWord.IsMatch(place.Name)),
+            ("Mess", place => place.Kind == PlaceKind.Food && MessWord.IsMatch(place.Name)),
+            ("Offices and services", place => place.Kind == PlaceKind.Office),
+            ("Gates", place => place.Kind == PlaceKind.Gate),
+            ("Sports", place => place.Kind == PlaceKind.Sports),
+        };
+
         public static PlaceSection[] Build(
             IReadOnlyList<PlaceRecord> places,
             string query,
             StuckRanking ranking,
             string stuckId,
-            IReadOnlyDictionary<string, double> routeMetres)
+            IReadOnlyDictionary<string, double> routeMetres,
+            Predicate<PlaceRecord> category = null)
         {
             if (places == null)
             {
                 throw new ArgumentNullException(nameof(places));
             }
 
-            if (!string.IsNullOrWhiteSpace(query))
+            var needle = query?.Trim() ?? string.Empty;
+            if (needle.Length > 0 || category != null)
             {
-                var needle = query.Trim();
                 var matches = new List<PlaceRecord>();
                 for (var i = 0; i < places.Count; i++)
                 {
                     var place = places[i];
-                    if (place.Name.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0)
+                    if ((category == null || category(place))
+                        && place.Name.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         matches.Add(place);
                     }

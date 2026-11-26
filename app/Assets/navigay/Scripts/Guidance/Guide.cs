@@ -27,6 +27,8 @@ namespace Navigay.Guidance
         Pace _pace = new Pace();
         bool _arrived;
         bool _vibrated;
+        float _movedAtFailure = float.NaN;
+        double _openedAt = double.NaN;
 
         public int Calculations { get; private set; }
 
@@ -48,12 +50,30 @@ namespace Navigay.Guidance
             _pace.Reset(config);
             _arrived = false;
             _vibrated = false;
+            _movedAtFailure = float.NaN;
         }
 
         public void Open(Route route, NavConfig config)
         {
             Calculations = 0;
+            _openedAt = double.NaN;
             Begin(route, config);
+        }
+
+        public int ElapsedMinutes(double time)
+        {
+            if (double.IsNaN(_openedAt))
+            {
+                return 0;
+            }
+
+            var minutes = (time - _openedAt) / 60d;
+            if (minutes <= 0d)
+            {
+                return 0;
+            }
+
+            return (int)Math.Round(minutes);
         }
 
         public GuidanceState Update(
@@ -74,6 +94,11 @@ namespace Navigay.Guidance
                 return Current;
             }
 
+            if (double.IsNaN(_openedAt))
+            {
+                _openedAt = time;
+            }
+
             if (snap.Locked)
             {
                 Track(snap, estimate, time, config);
@@ -92,17 +117,18 @@ namespace Navigay.Guidance
                 _haveSnap = true;
             }
 
-            if (!_arrived && OffRoute(snap, estimate, config) && calculate != null)
+            if (!_arrived && calculate != null && DueForReroute(snap, estimate, config))
             {
                 var next = calculate(graph, placeId, snap);
                 Calculations += 1;
                 if (next != null && next.Found)
                 {
                     Begin(next.Route, config);
-                    if (snap.Locked)
-                    {
-                        Track(snap, estimate, time, config);
-                    }
+                    Track(snap, estimate, time, config);
+                }
+                else
+                {
+                    _movedAtFailure = _movedSinceRoute;
                 }
             }
 
@@ -112,7 +138,7 @@ namespace Navigay.Guidance
             var shown = _countdown.Update(remaining, walkedBack, config);
             var speed = _pace.Update(_along, time, config);
             var minutes = Pace.Minutes(_route.LengthM - _along, speed);
-            var turn = Kind();
+            var turn = Kind(config);
             var extra = Extra(inside, cameraFine, estimate, level, config);
             Current = new GuidanceState(
                 _route,
@@ -222,6 +248,21 @@ namespace Navigay.Guidance
             }
         }
 
+        bool DueForReroute(SnapFix snap, PositionEstimate estimate, NavConfig config)
+        {
+            if (!snap.Locked || !OffRoute(snap, estimate, config))
+            {
+                return false;
+            }
+
+            if (float.IsNaN(_movedAtFailure))
+            {
+                return true;
+            }
+
+            return _movedSinceRoute - _movedAtFailure >= config.reroute_moved_m;
+        }
+
         bool OffRoute(SnapFix snap, PositionEstimate estimate, NavConfig config)
         {
             if (_arrived)
@@ -245,7 +286,7 @@ namespace Navigay.Guidance
             return Math.Max(0d, _route.Checkpoints[_index].AlongM - _along);
         }
 
-        TurnKind Kind()
+        TurnKind Kind(NavConfig config)
         {
             if (_arrived || _index >= _route.Checkpoints.Length - 1)
             {
@@ -279,7 +320,7 @@ namespace Navigay.Guidance
 
             var dot = ((ax * bx) + (ay * by)) / (magA * magB);
             var deg = Math.Acos(Math.Max(-1d, Math.Min(1d, dot))) * (180d / Math.PI);
-            if (deg <= 30d)
+            if (deg <= config.checkpoint_turn_deg)
             {
                 return TurnKind.Straight;
             }

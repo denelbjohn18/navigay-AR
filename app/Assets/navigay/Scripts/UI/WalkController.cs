@@ -152,10 +152,11 @@ namespace Navigay.UI
             var fix = new FixSample(_where.HasFix, estimate.PositionErrorM, inside != null, inside == null ? null : inside.Name, snap);
             var view = _gate.Sample(_graph, _place.PlaceId, fix, _config, time, Calculate);
             ShowPrecise(view.PreciseLocation);
-            _confidence.Update(estimate, _sensors.CameraFine, false, _config, time);
+            var aligned = _where.TryGetMapToAr(out var mapToAr);
+            _confidence.Update(estimate, _sensors.CameraFine && aligned, false, _config, time);
             if (view.Guiding)
             {
-                ShowGuide(view, snap, estimate, inside != null, time);
+                ShowGuide(view, snap, estimate, inside != null, mapToAr, time);
             }
             else
             {
@@ -172,7 +173,7 @@ namespace Navigay.UI
             _recorder.Capture(LogSample(time, estimate, snap, view.Route));
         }
 
-        void ShowGuide(ReadyView view, SnapFix snap, PositionEstimate estimate, bool inside, double time)
+        void ShowGuide(ReadyView view, SnapFix snap, PositionEstimate estimate, bool inside, Matrix4x4 mapToAr, double time)
         {
             if (!_shownGuide)
             {
@@ -202,13 +203,13 @@ namespace Navigay.UI
                 _guide.Hide();
                 _dots.HideAll();
                 var walked = Mathf.Max(0, (int)Mathf.Round((float)state.AlongM));
-                _arrival.Show(_place, Pace.Minutes(state.AlongM, _config.walk_speed_mps), walked);
+                _arrival.Show(_place, _guideLogic.ElapsedMinutes(time), walked);
                 return;
             }
 
             _arrival.Hide();
-            _guide.Draw(state, estimate.HeadingDeg, _sensors.ArRotation * Vector3.forward);
-            _dots.Draw(state, _sensors.ArPosition, _sensors.ArRotation, _config);
+            _guide.Draw(state, estimate.HeadingDeg);
+            _dots.Draw(state, mapToAr, _config);
         }
 
         string MinutesLine(Route route)

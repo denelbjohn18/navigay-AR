@@ -30,6 +30,9 @@ namespace Navigay.UI
 
         void Awake()
         {
+#if UNITY_IOS && !UNITY_EDITOR
+            Application.targetFrameRate = 60;
+#endif
             GraphData graph;
             try
             {
